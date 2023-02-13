@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shiori
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shiori
+  template:
+    metadata:
+      labels:
+        app: shiori
+    spec:
+      containers:
+        - name: shiori
+          image: ghcr.io/leonardopoggiani/devopscpplicationchallenge:latest
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: secret-volume
+              mountPath: /srv/shiori
+              readOnly: true
+      imagePullSecrets:
+        - name: ghcr-secret
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: shiori-secret
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: shiori-secret
+data:
+  SHIORI_PG_USER: c2hpb3Jp
+  SHIORI_PG_PASS: c2hpb3Jp
+  SHIORI_DBMS: bXlzcWw=
+  SHIORI_DIR: L3Nydi9zaGlvcmk=
+  SHIORI_PG_NAME: c2hpb3Jp
+  SHIORI_PG_HOST: cG9zdGdyZXM=
+  SHIORI_PG_PORT: NTQzMg==
+  SHIORI_MYSQL_USER: c2hpb3Jp
+  SHIORI_MYSQL_PASS: c2hpb3Jp
+  SHIORI_MYSQL_NAME: c2hpb3Jp
+  SHIORI_MYSQL_ADDRESS: bWFyaWFkYg==

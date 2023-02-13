@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb:10.9
+          ports:
+            - containerPort: 3306
+          envFrom:
+            - secretRef:
+                name: mariadb-secret
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mariadb-secret
+type: Opaque
+data:
+  MYSQL_ROOT_PASSWORD: dG9vclNhbHZlZA==
+  MYSQL_DATABASE: c2hpb3Jp
+  MYSQL_USER: c2hpb3Jp
+  MYSQL_PASSWORD: c2hpb3JpU2FsdmVk
+
