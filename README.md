@@ -284,5 +284,80 @@ using:
 kubectl config --kubeconfig=config-demo set-credentials experimenter --username=exp --password=some-password
 ```
 
-## Log events using Prometheus
+## Log events 
 
+### Pre-requisites
+
+- [Helm](https://helm.sh/docs/intro/install/)
+
+### Deploying Prometheus
+
+Per usare Prometheus come logger di eventi possiamo fare il deploy con il chart Helm oppure (se vogliamo una 
+maggiore configurabilità) possiamo fare il deploy con il file di configurazione _prometheus.yaml_. 
+In questo caso dobbiamo prima creare il namespace _monitoring_ e poi fare il deploy del file di configurazione.
+Il deploy di Prometheus può essere fatto in modo semplificato andando ad usare il gestore di pacchetti Helm:
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+helm repo update
+
+helm install monitoring prometheus-community/kube-prometheus-stack --namespace monitoring
+```
+
+Possiamo controllare che il deployment sia andato a buon fine con il comando:
+
+```bash
+kubectl get pods -n monitoring
+```
+
+A questo punto possiamo provare ad accedere alla dashboard di Prometheus all'indirizzo [http://localhost:9090](http://localhost:9090)
+utilizzando il comando:
+
+```bash
+kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n monitoring 9090
+```
+
+che ci consente di accedere la UI di Prometheus sul localhost.
+Per accedere alla dashboard di Grafana possiamo utilizzare il comando:
+
+```bash
+kubectl get secret -n monitoring monitoring-grafana -o yaml
+```
+
+che ci consente di recuperare la password per accedere alla dashboard di Grafana.
+Decodificata la password e l'username possiamo eseguire il comando:
+
+```bash
+kubectl port-forward svc/monitoring-grafana -n monitoring 3001:80
+``` 
+
+per accedere alla dashboard di Grafana all'indirizzo [http://localhost:3001](http://localhost:3001).
+Per aggiungere nuove metriche oltre a quelle di sistema di Kubernetes possiamo aggiungere delle annotazioni ai servici 
+su cui Prometheus deve fare scraping ():
+
+```YAML
+    annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '9187'
+      prometheus.io/path: '/metrics'
+      prometheus.io/scheme: 'http'
+```
+
+### Deploying Kibana
+
+Per fare il deploy di Kibana utilizziamo i file di configurazione presenti nella cartella _multi-environment/kibana/_.
+Possiamo semplicemente eseguire il comando:
+
+```bash
+kubectl apply -f multi-environment/kibana/
+```
+
+Dobbiamo poi abilitare il port-forwarding per accedere alla dashboard di Kibana all'indirizzo [http://localhost:5601](http://localhost:5601):
+
+```bash
+kubectl port-forward <kibana-pod-name> 5601:5601 --namespace=monitoring
+```
+
+A questo punto dalla dashboard di Kibana possiamo creare un nuovo indice per i log di Shiori. Per farlo andiamo
+nella sezione _Discovery_ e seguiamo i passaggi della configurazione guidata.

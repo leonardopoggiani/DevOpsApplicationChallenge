@@ -38,6 +38,26 @@ data:
 
 ---
 
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb-service-prod
+  namespace: production
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '9104'
+    prometheus.io/path: '/metrics'
+    prometheus.io/scheme: 'http'
+spec:
+  selector:
+    app: mariadb-prod
+  ports:
+    - name: metrics
+      port: 9104
+      targetPort: 9104
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -79,16 +99,21 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
-  name: shiori-service-prod
+  name: postgres-service-prod
   namespace: production
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '9187'
+    prometheus.io/path: '/metrics'
+    prometheus.io/scheme: 'http'
 spec:
   selector:
-    app: shiori
+    app: postgres-prod
   ports:
-    - name: http
-      port: 8080
-      targetPort: 8080
-  type: NodePort
+    - name: metrics
+      port: 9187
+      targetPort: 9187
+
 
 ---
 
@@ -134,6 +159,42 @@ spec:
         - name: secret-volume
           secret:
             secretName: prod-secret
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: shiori-service-prod
+  namespace: production
+spec:
+  selector:
+    app: shiori
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: NodePort
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: shiori-service-prometheus-prod
+  namespace: production
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '9292'
+    prometheus.io/path: '/metrics'
+    prometheus.io/scheme: 'http'
+spec:
+  selector:
+    app: shiori
+  ports:
+    - name: metrics
+      port: 9292
+      targetPort: 9292
 
 ---
 
