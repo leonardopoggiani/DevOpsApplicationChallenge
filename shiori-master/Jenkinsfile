@@ -6,8 +6,8 @@ pipeline {
 
   environment {
     GO111MODULE = 'on'
-    SHIORI_TEST_MYSQL_URL = 'mysql://user:password@localhost:3306/test_db'
-    SHIORI_TEST_PG_URL = 'postgres://user:password@localhost:5432/test_db'
+    SHIORI_TEST_MYSQL_URL = 'mysql://shiori:shiori@localhost:3306/shiori'
+    SHIORI_TEST_PG_URL = 'postgres://shiori:shiori@localhost:5432/shiori'
   }
 
   stages {
