@@ -1,0 +1,58 @@
+pipeline {
+  agent {
+    label 'golang'
+  }
+
+  environment {
+    GOPATH = "${WORKSPACE}/go"
+    PATH = "${PATH}:${GOPATH}/bin"
+  }
+
+  stages {
+    stage('Build') {
+      steps {
+        sh 'go mod download'
+        sh 'go build -o shiori main.go'
+      }
+    }
+
+    stage('Test') {
+      steps {
+        sh 'go test -v ./...'
+      }
+    }
+
+    stage('Deploy') {
+      when {
+        allOf {
+          environment name: 'BUILD_STATUS', value: 'SUCCESS'
+          branch 'master'
+        }
+      }
+      steps {
+        input "Deploy to QA environment?"
+        sh 'kubectl apply -f deploy/minikube/multi-environment/ns-quality-assurance.yaml'
+        sh 'kubectl apply -f deploy/minikube/multi-environment/shiori-qa.yaml'
+      }
+    }
+
+    stage('Manual test') {
+      when {
+        allOf {
+          environment name: 'BUILD_STATUS', value: 'SUCCESS'
+          branch 'master'
+        }
+      }
+      steps {
+        sh 'echo "Shiori is ready for manual testing!"'
+      }
+    }
+  }
+
+  post {
+    always {
+      junit 'reports/**/*.xml'
+      archiveArtifacts artifacts: 'shiori', fingerprint: true
+    }
+  }
+}

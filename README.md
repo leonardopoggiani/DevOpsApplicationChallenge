@@ -361,3 +361,15 @@ kubectl port-forward <kibana-pod-name> 5601:5601 --namespace=monitoring
 
 A questo punto dalla dashboard di Kibana possiamo creare un nuovo indice per i log di Shiori. Per farlo andiamo
 nella sezione _Discovery_ e seguiamo i passaggi della configurazione guidata.
+
+## (Bonus task 1) Running CI service to test the application
+
+Per deployare Jenkins all'interno del cluster Kubernetes dobbiamo innanzitutto creare un namespace:
+
+```bash
+kubectl create namespace devops-tools
+```
+
+## (Bonus task 2) Deploying the application using Terraform
+
+## (Bonus task 3) Running CI/CD pipeline using Github Actions
