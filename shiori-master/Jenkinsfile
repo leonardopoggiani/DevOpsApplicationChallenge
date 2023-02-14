@@ -10,8 +10,10 @@ pipeline {
 
   stages {
 
-    dir("shiori-master") {
-      sh "pwd"
+    steps {
+      dir("shiori-master") {
+        sh "pwd"
+      }
     }
 
     stage('Download dependencies') {
