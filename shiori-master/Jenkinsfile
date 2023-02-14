@@ -4,6 +4,10 @@ pipeline {
     go 'go-1.20'
   }
 
+  environment {
+    GO111MODULE = 'off'
+  }
+
   stages {
     stage('Build') {
       steps {
