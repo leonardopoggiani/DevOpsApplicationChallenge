@@ -184,6 +184,12 @@ kubectl apply -f postgres.yaml
 kubectl apply -f mariadb.yaml
 ```
 
+or just with:
+
+```bash
+kubectl apply -f minikube/single-enviroment
+```
+
 // TODO: usare LoadBalancer al posto di NodePort
 Il _service.yaml_ file contiene la configurazione per esporre l'applicazione all'esterno del cluster. 
 In particolare viene esposto il servizio _shiori_ all'indirizzo [http://<indirizzo_ip_nodo_minikube>:30080](http://192.168.49.2:30080)
@@ -193,7 +199,90 @@ recuperabile attraverso il comando:
 kubectl get nodes -o wide
 ```
 
+#### Using an external database
+
+To use an external database we need to change the _shiori.yaml_ file. We need to change the secrets that we use to 
+define the environment variables. In particular the _SHIORI_DBMS_ will be the hostname or the ip address for the 
+database server and so on.
+
 ### Deploying the application in kind
 
 // TODO
+
+## Deploying the application on two isolated environments
+
+Possiamo fare il deploy dell'applicazione su due ambienti separati (QA e PRODUCTION) sfruttando i namespace di 
+che ci consentono di mantenere due ambienti isolati all'interno dello stesso cluster (alternativamente potremmo creare
+due cluster separati che è sicuramente la best practice se i costi di mantenimento e la dimensione del cluster 
+non sono un problema). [Logical separation](https://learn.microsoft.com/en-us/azure/aks/operator-best-practices-cluster-isolation#logically-isolate-clusters) of clusters usually provides a higher pod density than physically isolated 
+clusters, with less excess compute capacity sitting idle in the cluster. When combined with the Kubernetes cluster 
+autoscaler, you can scale the number of nodes up or down to meet demands. This best practice approach to autoscaling
+minimizes costs by running only the number of nodes required.
+
+Per prima cosa creiamo i rispettivi file di configurazione per i namespace in questo modo:
+
+```bash
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: <nome_ambiente>
+  labels:
+    name: <nome_ambiente>
+```
+e creiamo i namespace con il comando:
+
+```bash
+kubectl apply -f <nome_ambiente>.yaml
+```
+
+Da questo momento in poi quando vogliamo eseguire una particolare azione su un namespace dobbiamo specificare di quale 
+si tratta aggiungendo il parametro `-n <nome_ambiente>` and ogni comando _kubectl_.
+
+```bash
+kubectl apply -f single-environment/ -n <nome_ambiente>
+```
+
+Per evitare di dimenticarci o di usare il parametro sbagliato possiamo impostare il namespace nel file di configurazione 
+in questo modo:
+
+```YAML
+    metadata:
+      name: shiori-qa
+      namespace: quality-assurance
+```
+
+e quindi eseguire il comando:
+
+```bash
+kubectl apply -f multi-environment/
+```
+
+per eseguire il deploy in automatico su due ambienti isolati in questo modo possiamo specificare parametri diversi per 
+ognuno dei due ambienti. Ad esempio possiamo specificare un diverso numero di replica per ogni ambiente:
+
+```YAML
+    spec:
+      replicas: 2
+```
+Potremmo inoltre specificare un servizio di tipo _LoadBalancer_ per l'ambiente di produzione così da poter accedere 
+all'applicazione dall'esterno del cluster mentre per l'ambiente di QA potremmo usare un servizio di tipo _NodePort_.
+Inoltre in questo modo possiamo specificare un diverso database per ogni ambiente. Ovviamente in questo caso dobbiamo
+prima creare i due database separati e poi specificare i rispettivi parametri di connessione.
+
+// TODO
+In alternativa a questo metodo (a chi non capita di scordarsi il parametro?) possiamo impostare il namespace di default 
+andando a definire due diversi contesti in questo modo:
+    
+```bash
+kubectl config set-context qa --namespace=quality-assurance --cluster=minikube --user=minikube
+```
+
+If you want you can also define diffent users by specifying the `--user` parameter as you prefer and then set a password
+using:
+
+```bash
+kubectl config --kubeconfig=config-demo set-credentials experimenter --username=exp --password=some-password
+```
+
+## Log events using Prometheus
 

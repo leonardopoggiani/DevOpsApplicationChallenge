@@ -1,0 +1,156 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-prod
+  namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb:10.9
+          ports:
+            - containerPort: 3308
+          envFrom:
+            - secretRef:
+                name: mariadb-secret
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mariadb-secret
+  namespace: production
+type: Opaque
+data:
+  MYSQL_ROOT_PASSWORD: dG9vclNhbHZlZA==
+  MYSQL_DATABASE: c2hpb3Jp
+  MYSQL_USER: c2hpb3JpLXByb2QK
+  MYSQL_PASSWORD: c2hpb3JpLXByb2QK
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-prod
+  namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:13
+          ports:
+            - containerPort: 5433
+          envFrom:
+            - secretRef:
+                name: postgres-secret
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: production
+type: Opaque
+data:
+  POSTGRES_PASSWORD: c2hpb3JpLXByb2QK
+  POSTGRES_USER: c2hpb3JpLXByb2QK
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: shiori-service-prod
+  namespace: production
+spec:
+  selector:
+    app: shiori
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: NodePort
+
+---
+
+apiVersion: v1
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJnaGNyLmlvIjp7InVzZXJuYW1lIjoibGVvbmFyZG9wb2dnaWFuaSIsInBhc3N3b3JkIjoiZ2hwX05JYlZCSWJyYVFqYTNIMEVrcE11QXoyVXdWQWJuSjNkazJDaSIsImVtYWlsIjoibGVvbmFyZG8ucG9nZ2lhbmlAZ21haWwuY29tIiwiYXV0aCI6ImJHVnZibUZ5Wkc5d2IyZG5hV0Z1YVRwbmFIQmZUa2xpVmtKSlluSmhVV3BoTTBnd1JXdHdUWFZCZWpKVmQxWkJZbTVLTTJSck1rTnAifX19
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: ghcr-secret
+  namespace: production
+type: kubernetes.io/dockerconfigjson
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shiori-prod
+  namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shiori
+  template:
+    metadata:
+      labels:
+        app: shiori
+    spec:
+      containers:
+        - name: shiori
+          image: ghcr.io/leonardopoggiani/devopsapplicationchallenge:latest
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: secret-volume
+              mountPath: /prod/shiori
+              readOnly: true
+      imagePullSecrets:
+        - name: ghcr-secret
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: prod-secret
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: prod-secret
+  namespace: production
+data:
+  SHIORI_PG_USER: c2hpb3JpLXByb2QK
+  SHIORI_PG_PASS: c2hpb3JpLXByb2QK
+  SHIORI_DBMS: bXlzcWw=
+  SHIORI_DIR: L3Byb2Qvc2hpb3JpCg==
+  SHIORI_PG_NAME: c2hpb3JpLXByb2QK
+  SHIORI_PG_HOST: cG9zdGdyZXM=
+  SHIORI_PG_PORT: NTQzMwo=
+  SHIORI_MYSQL_USER: c2hpb3JpLXByb2QK
+  SHIORI_MYSQL_PASS: c2hpb3JpLXByb2QK
+  SHIORI_MYSQL_NAME: c2hpb3JpLXByb2QK
+  SHIORI_MYSQL_ADDRESS: bWFyaWFkYg==

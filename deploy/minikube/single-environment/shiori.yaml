@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: shiori
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: shiori
@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: shiori
-          image: ghcr.io/leonardopoggiani/devopscpplicationchallenge:latest
+          image: ghcr.io/leonardopoggiani/devopsapplicationchallenge:latest
           ports:
             - containerPort: 8080
           volumeMounts:
