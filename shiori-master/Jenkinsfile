@@ -31,7 +31,9 @@ pipeline {
     stage('Test') {
       steps {
         dir("shiori-master") {
-          sh 'go test -v ./...'
+          withEnv(['SHIORI_TEST_MYSQL_URL=jdbc:mysql://localhost:3306/test_db']) {
+            sh 'go test -v ./...'
+          }
         }
       }
     }
