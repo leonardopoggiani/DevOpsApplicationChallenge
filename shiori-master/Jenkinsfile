@@ -9,8 +9,14 @@ pipeline {
   }
 
   stages {
+
+    dir("shiori-master") {
+      sh "pwd"
+    }
+
     stage('Download dependencies') {
       steps {
+        sh 'go version'
         sh 'go mod download'
       }
     }
