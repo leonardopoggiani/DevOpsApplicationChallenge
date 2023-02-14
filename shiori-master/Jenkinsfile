@@ -9,9 +9,14 @@ pipeline {
   }
 
   stages {
-    stage('Build') {
+    stage('Download dependencies') {
       steps {
         sh 'go mod download'
+      }
+    }
+
+    stage('Build') {
+      steps {
         sh 'go build -o shiori main.go'
       }
     }
