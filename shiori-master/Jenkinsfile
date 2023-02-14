@@ -6,7 +6,7 @@ pipeline {
 
   environment {
     GO111MODULE = 'on'
-    SHIORI_TEST_MYSQL_URL = 'mysql://mariadb-service-prod.production.svc.cluster.local:9104/test_db'
+    SHIORI_TEST_MYSQL_URL = 'mysql://shiori:shiori@10.110.191.87:9104/test_db'
     SHIORI_TEST_PG_URL = 'postgres://shiori:shiori@10.104.128:9187/test_db'
   }
 
