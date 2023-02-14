@@ -10,28 +10,29 @@ pipeline {
 
   stages {
 
-    steps {
-      dir("shiori-master") {
-        sh "pwd"
-      }
-    }
-
     stage('Download dependencies') {
       steps {
-        sh 'go version'
-        sh 'go mod download'
+        dir("shiori-master") {
+          sh "pwd"
+          sh 'go version'
+          sh 'go mod download'
+        }
       }
     }
 
     stage('Build') {
       steps {
-        sh 'go build -o shiori main.go'
+        dir("shiori-master") {
+          sh 'go build -o shiori main.go'
+        }
       }
     }
 
     stage('Test') {
       steps {
-        sh 'go test -v ./...'
+        dir("shiori-master") {
+          sh 'go test -v ./...'
+        }
       }
     }
 
@@ -44,8 +45,8 @@ pipeline {
       }
       steps {
         input "Deploy to QA environment?"
-        sh 'kubectl apply -f deploy/minikube/multi-environment/ns-quality-assurance.yaml'
-        sh 'kubectl apply -f deploy/minikube/multi-environment/shiori-qa.yaml'
+        sh 'kubectl apply -f shiori-master/deploy/minikube/multi-environment/ns-quality-assurance.yaml'
+        sh 'kubectl apply -f shiori-master/deploy/minikube/multi-environment/shiori-qa.yaml'
       }
     }
 
