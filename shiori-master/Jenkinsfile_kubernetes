@@ -1,9 +1,28 @@
 pipeline {
-  agent any
+  agent {
+    kubernetes {
+        yaml """
+                apiVersion: v1
+                kind: Pod
+                metadata:
+                  labels:
+                    app: shiori-pipeline
+                spec:
+                  containers:
+                  - name: golang
+                    image: golang:1.20.1
+                    command:
+                    - sleep
+                    args:
+                    - 99d
+              """
+              defaultContainer 'golang'
+    }
+  }
 
   environment {
-    SHIORI_TEST_PG_URL = "postgres://shiori-prod:shiori-prod@192.168.49.2:5432/shiori?sslmode=disable"
-    SHIORI_TEST_MYSQL_URL= "shiori-prod:shiori-prod@(192.168.49.2:3306)/shiori?"
+    SHIORI_TEST_PG_URL = "postgres://shiori-prod:shiori-prod@postgres-service-prod.production.svc.cluster.local:5432/shiori?sslmode=disable"
+    SHIORI_TEST_MYSQL_URL= "shiori-prod:shiori-prod@(mariadb-service-prod.production.svc.cluster.local:3306)/shiori?sslmode=disable"
   }
 
   stages {

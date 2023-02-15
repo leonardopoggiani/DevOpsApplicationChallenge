@@ -1,5 +1,6 @@
 # DevOpsApplicationChallenge
-Geckosoft DevOps application challenge
+
+## Geckosoft DevOps application challenge
 
 ## Applicazione scelta
 
@@ -406,7 +407,10 @@ in questo modo avremo un'installazione di Jenkins completa di tutte le dipendenz
 raggiungibile dal browser all'indirizzo [http://<minikube_ip>:30000](http://<minikube_ip>:30000).
 
 Alternativamente possiamo [installare]((https://www.jenkins.io/doc/book/installing/) il server Jenkins nel sistema locale e raggiungerlo all'indirizzo [http://localhost:9090](http://localhost:9090).
-Dopo aver installato Jenkins possiamo scrivere il nostro Jenkinsfile.
+Dopo aver installato Jenkins possiamo configurarlo accedendo alla dashboard e seguendo i passaggi della 
+[configurazione guidata](https://www.jenkins.io/doc/book/installing/#setup-wizard).
+Da ricordare che per configurare Jenkins in una repository privata va creato un token attraverso GitHub e la repository
+corrispondente va indicata come _https://token_github@github.com/username/repository.git_.
 Va prestata attenzione alla modalità di deploy di Jenkins perché se viene eseguito all'interno del cluster Kubernetes 
 e vogliamo che la pipeline venga eseguita all'interna di un pod dobbiamo specificare la configurazione del pod:
 
@@ -527,5 +531,7 @@ come URL l'indirizzo del server Jenkins e come tipo di evento _Push_ (http://<se
 Se il server Jenkins è eseguito all'interno del cluster Kubernetes allora andremo ad inserire l'indirizzo del nodo 
 minikube al posto di quello del server Jenkins.
 
-// TODO che mettere quando il server e' eseguito localmente? localhost non va bene deve essere esposto
+Se il server Jenkins è eseguito sul localhost allora andremo a scaricare [ngrok](https://ngrok.com/download) that can 
+expose our localhost to the internet and create a tunnel between the two. E a questo punto si può creare il webhook 
+usando l'indirizzo fornito da ngrok (http://<ngrok_url>/github-webhook/).
 
