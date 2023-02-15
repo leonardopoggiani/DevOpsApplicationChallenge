@@ -1,7 +1,7 @@
 pipeline {
   agent {
     kubernetes {
-        yaml: '''
+        yaml '''
         apiVersion: v1
         kind: Pod
         metadata:
@@ -14,7 +14,7 @@ pipeline {
             - sleep
             args:
             - 99d
-        ''')
+        '''
     }
   }
 
