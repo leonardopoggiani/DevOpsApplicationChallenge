@@ -124,7 +124,7 @@ docker compose down
 To launch the services separately and test their operation, you can run the command:
 
 ```bash
-docker-compose up <nome_servizio>
+docker-compose up <service_name>
 ```
 
 with the names of the services that are retrievable from the _docker-compose.yaml_ file.
