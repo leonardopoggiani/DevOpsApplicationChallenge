@@ -1,74 +1,62 @@
 pipeline {
-  agent {
-    kubernetes {
-      yaml """
-      apiVersion: v1
-      kind: Pod
-      metadata:
-        labels:
-          app: shiori
-      spec:
-        containers:
-          - name: shiori
-            image: golang:1.20
-            command:
-            - 'cat'
-            tty: true
-      """
-    }
-  }
+  agent any
 
   environment {
     SHIORI_TEST_MYSQL_URL = 'mysql://mariadb-service-prod.production.svc.cluster.local:3306/dbname'
   }
 
   stages {
-    stage('Download dependencies') {
-      steps {
-        dir("shiori-master") {
-          sh "pwd"
-          sh 'go version'
-          sh 'go mod download'
-        }
-      }
-    }
 
-    stage('Build') {
-      steps {
-        dir("shiori-master") {
-          sh 'go build -o shiori main.go'
-        }
-      }
-    }
+    podTemplate(containers: [
+      containerTemplate(name: 'golang', image: 'golang:1.20.1', command: 'sleep', args: '99d')
+    ]) {
 
-    stage('Test') {
-      steps {
-        dir("shiori-master") {
-          sh 'go test -v ./...'
+        stage('Download dependencies') {
+          steps {
+            dir("shiori-master") {
+              sh 'go mod download'
+            }
+          }
         }
-      }
-    }
 
-    stage('Deploy') {
-      when {
-        allOf {
-          environment name: 'BUILD_STATUS', value: 'SUCCESS'
-          branch 'master'
+        stage('Build') {
+          steps {
+            dir("shiori-master") {
+              sh 'go build -o shiori main.go'
+            }
+          }
         }
-      }
-      steps {
-        input "Deploy to QA environment?"
-        sh 'kubectl apply -f shiori-master/deploy/minikube/multi-environment/ns-quality-assurance.yaml'
-        sh 'kubectl apply -f shiori-master/deploy/minikube/multi-environment/shiori-qa.yaml'
-      }
-    }
 
-    stage('Manual test') {
-      when {
-        allOf {
-          environment name: 'BUILD_STATUS', value: 'SUCCESS'
-          branch 'master'
+        stage('Test') {
+          steps {
+            dir("shiori-master") {
+              sh 'go test -v ./...'
+            }
+          }
         }
+
+        stage('Deploy') {
+          when {
+            allOf {
+              environment name: 'BUILD_STATUS', value: 'SUCCESS'
+              branch 'master'
+            }
+          }
+          
+          steps {
+            input "Deploy to QA environment?"
+            sh 'kubectl apply -f shiori-master/deploy/minikube/multi-environment/ns-quality-assurance.yaml'
+            sh 'kubectl apply -f shiori-master/deploy/minikube/multi-environment/shiori-qa.yaml'
+          }
+        }
+
+        stage('Manual test') {
+          when {
+            allOf {
+              environment name: 'BUILD_STATUS', value: 'SUCCESS'
+              branch 'master'
+            }
+          }
       }
       steps {
         sh 'echo "Shiori is ready for manual testing!"'
