@@ -23,62 +23,61 @@ pipeline {
   }
 
   stages {
-    node('goland') {
-
-        stage('Download dependencies') {
+    stage('Download dependencies') {
+        node('goland') {
           steps {
             dir("shiori-master") {
               sh 'go mod download'
             }
           }
         }
+    }
 
-        stage('Build') {
-          steps {
-            dir("shiori-master") {
-              sh 'go build -o shiori main.go'
-            }
-          }
-        }
-
-        stage('Test') {
-          steps {
-            dir("shiori-master") {
-              sh 'go test -v ./...'
-            }
-          }
-        }
-
-        stage('Deploy') {
-          when {
-            allOf {
-              environment name: 'BUILD_STATUS', value: 'SUCCESS'
-              branch 'master'
-            }
-          }
-
-          steps {
-            input "Deploy to QA environment?"
-            sh 'kubectl apply -f shiori-master/deploy/minikube/multi-environment/ns-quality-assurance.yaml'
-            sh 'kubectl apply -f shiori-master/deploy/minikube/multi-environment/shiori-qa.yaml'
-          }
-        }
-
-        stage('Manual test') {
-          when {
-            allOf {
-              environment name: 'BUILD_STATUS', value: 'SUCCESS'
-              branch 'master'
-            }
-          }
-
-          steps {
-            sh 'echo "Shiori is ready for manual testing!"'
-          }
+    stage('Build') {
+      steps {
+        dir("shiori-master") {
+          sh 'go build -o shiori main.go'
         }
       }
+    }
+
+    stage('Test') {
+      steps {
+        dir("shiori-master") {
+          sh 'go test -v ./...'
+        }
+      }
+    }
+
+    stage('Deploy') {
+      when {
+        allOf {
+          environment name: 'BUILD_STATUS', value: 'SUCCESS'
+          branch 'master'
+        }
+      }
+
+      steps {
+        input "Deploy to QA environment?"
+        sh 'kubectl apply -f shiori-master/deploy/minikube/multi-environment/ns-quality-assurance.yaml'
+        sh 'kubectl apply -f shiori-master/deploy/minikube/multi-environment/shiori-qa.yaml'
+      }
+    }
+
+    stage('Manual test') {
+      when {
+        allOf {
+          environment name: 'BUILD_STATUS', value: 'SUCCESS'
+          branch 'master'
+        }
+      }
+
+      steps {
+        sh 'echo "Shiori is ready for manual testing!"'
+      }
+    }
   }
-  
+
   post {
     always {
       junit allowEmptyResults: true, testResults: '**/reports/*.xml', skipPublishingChecks: true
