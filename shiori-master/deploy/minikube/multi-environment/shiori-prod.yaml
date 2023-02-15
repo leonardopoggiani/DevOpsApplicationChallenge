@@ -55,6 +55,11 @@ spec:
     - name: metrics
       port: 9104
       targetPort: 9104
+    - name: mariadb
+      protocol: TCP
+      port: 3306
+      targetPort: 3306
+
 
 ---
 
@@ -113,7 +118,9 @@ spec:
     - name: metrics
       port: 9187
       targetPort: 9187
-
+    - name: postgres
+      port: 5432
+      targetPort: 5432
 
 ---
 

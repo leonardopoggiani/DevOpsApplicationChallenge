@@ -32,6 +32,7 @@ resource "google_compute_firewall" "firewall" {
 resource "google_compute_instance" "instance" {
   name         = "shiori-instance"
   machine_type = "e2-micro"
+  zone = "europe-west1-c"
 
   boot_disk {
     initialize_params {
