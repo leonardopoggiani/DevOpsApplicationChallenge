@@ -21,8 +21,8 @@ pipeline {
   }
 
   environment {
-    SHIORI_TEST_MYSQL_URL = 'c2hpb3JpLXByb2QK:c2hpb3JpLXByb2QK@tcp(mariadb-service-prod.production.svc.cluster.local:3306)/test_db'
-    SHIORI_TEST_PG_URL = 'c2hpb3JpLXByb2QK:c2hpb3JpLXByb2QK@tcp(mariadb-service-prod.production.svc.cluster.local:5432)/test_db'
+    SHIORI_TEST_MYSQL_URL = 'shiori-prod:shiori-prod@tcp(mariadb-service-prod.production.svc.cluster.local:3306)/test_db'
+    SHIORI_TEST_PG_URL = 'shiori-prod:shiori-prod@tcp(mariadb-service-prod.production.svc.cluster.local:5432)/test_db'
   }
 
   stages {
