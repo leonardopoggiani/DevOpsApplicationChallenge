@@ -21,7 +21,7 @@ pipeline {
   }
 
   environment {
-    SHIORI_TEST_MYSQL_URL = 'mysql://172.17.0.3:9104/test_db'
+    SHIORI_TEST_MYSQL_URL = 'mysql://shiori:shiori@tcp(mariadb-service-prod.production.svc.cluster.local:9104)/test_db'
     SHIORI_TEST_PG_URL = 'postgres://10.104.128.164:9187/test_db'
   }
 
