@@ -1,20 +1,23 @@
 pipeline {
   agent {
     kubernetes {
-        yaml '''
-        apiVersion: v1
-        kind: Pod
-        metadata:
-            name: golang
-        spec:
-          containers:
-          - name: golang
-            image: golang:1.20.1
-            command:
-            - sleep
-            args:
-            - 99d
-        '''
+        yaml """
+                apiVersion: v1
+                kind: Pod
+                metadata:
+                  labels:
+                    app: shiori-pipeline
+                spec:
+                  containers:
+                  - name: golang
+                    image: golang:1.20.1
+                    command:
+                    - sleep
+                    args:
+                    - 99d
+              """
+              label 'golang'
+              defaultContainer 'golang'
     }
   }
 
@@ -24,13 +27,11 @@ pipeline {
 
   stages {
     stage('Download dependencies') {
-        node('goland') {
-          steps {
-            dir("shiori-master") {
-              sh 'go mod download'
-            }
-          }
+      steps {
+        dir("shiori-master") {
+          sh 'go mod download'
         }
+      }
     }
 
     stage('Build') {
