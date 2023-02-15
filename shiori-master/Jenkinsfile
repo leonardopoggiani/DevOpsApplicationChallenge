@@ -2,8 +2,8 @@ pipeline {
   agent any
 
   environment {
-    SHIORI_TEST_PG_URL = "postgres://shiori:shiori@192.168.49.2:30387/shiori?sslmode=disable"
-    SHIORI_TEST_MYSQL_URL= "shiori:shiori@(192.168.49.2:30378)/shiori?"
+    SHIORI_TEST_PG_URL = "postgres://shiori:shiori@192.168.49.2:30387/test_db?sslmode=disable"
+    SHIORI_TEST_MYSQL_URL= "shiori-prod:shiori-prod@tcp(192.168.49.2:30378)/test_db"
   }
 
   stages {
