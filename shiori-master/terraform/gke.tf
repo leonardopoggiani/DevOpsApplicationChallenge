@@ -31,14 +31,6 @@ resource "google_container_node_pool" "cluster_node_pool" {
   location   = "us-central1-f"
   cluster    = google_container_cluster.cluster.name
   node_count = 1
-}
-
-# Separately Managed Node Pool
-resource "google_container_node_pool" "primary_nodes" {
-  name       = google_container_cluster.cluster.name
-  location   = "us-central1-f"
-  cluster    = google_container_cluster.cluster.name
-  node_count = var.gke_num_nodes
 
   node_config {
     oauth_scopes = [
