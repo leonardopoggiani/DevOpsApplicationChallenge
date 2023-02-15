@@ -16,7 +16,6 @@ pipeline {
                     args:
                     - 99d
               """
-              label 'golang'
               defaultContainer 'golang'
     }
   }
