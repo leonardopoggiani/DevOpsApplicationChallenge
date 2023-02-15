@@ -21,8 +21,14 @@ pipeline {
   }
 
   environment {
-    SHIORI_TEST_MYSQL_URL = 'shiori-prod:shiori-prod@tcp(mariadb-service-prod.production.svc.cluster.local:3306)/shiori'
-    SHIORI_TEST_PG_URL = 'shiori-prod:shiori-prod@tcp(mariadb-service-prod.production.svc.cluster.local:5432)/shiori'
+    POSTGRES_PASSWORD = "shiori"
+    POSTGRES_USER = "shiori"
+    MYSQL_USER = "shiori"
+    MYSQL_PASSWORD = "shiori"
+    MYSQL_DATABASE = "shiori"
+    MYSQL_ROOT_PASSWORD = "shiori"
+    SHIORI_TEST_PG_URL: "postgres://shiori:shiori@mariadb-service-prod.production.svc.cluster.local:5432/shiori?sslmode=disable"
+    SHIORI_TEST_MYSQL_URL: "shiori:shiori@(mariadb-service-prod.production.svc.cluster.local:3306)/shiori"
   }
 
   stages {
