@@ -55,11 +55,23 @@ spec:
     - name: metrics
       port: 9104
       targetPort: 9104
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb-service-prod-nodeport
+  namespace: production
+spec:
+  selector:
+    app: mariadb-prod
+  ports:
     - name: mariadb
       protocol: TCP
       port: 3306
       targetPort: 3306
-
+  type: NodePort
 
 ---
 
@@ -121,6 +133,23 @@ spec:
     - name: postgres
       port: 5432
       targetPort: 5432
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service-prod-nodeport
+  namespace: production
+spec:
+  selector:
+    app: postgres-prod
+  ports:
+    - name: postgres
+      protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: NodePort
 
 ---
 

@@ -524,6 +524,12 @@ All'interno della cartella _terraform_ sono presenti i file che servono per crea
 
 ## (Bonus task 3) Monitors and deploy code in GitHub repository
 
+### Pre-requisites
+
+- [ngrok](https://ngrok.com/download) (only if Jenkins is running on localhost)
+
+### Create GitHub webhook
+
 Per questo task si possono utilizzare i Webhook di GitHub per triggerare un job Jenkins ad ogni push su una 
 repository.
 In particolare nelle impostazioni della repository si va nella sezione _Webhooks_ e si crea un nuovo webhook che abbia 
