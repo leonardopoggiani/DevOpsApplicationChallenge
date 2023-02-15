@@ -204,20 +204,36 @@ or just with:
 kubectl apply -f minikube/single-enviroment
 ```
 
-// TODO: utilize LoadBalancer instead of NodePort
-
 By using a LoadBalancer instead of a NodePort, it is possible to expose the application outside the cluster through a
 single IP address without worrying about having to retrieve the node address or port number each time
 (the number of ports that can be used is limited, so in large deployments it may not be sufficient).
 A simple load balancer that can be used is [MetalLB](https://metallb.universe.tf/) or [OpenELB](https://openelb.io/).
 
-The _service.yaml_ file contains the configuration for exposing the application outside the cluster.
+#### Deploying a LoadBalancer
+
+To deploy a LoadBalaner on a minikube cluster we just need to enable the specific addon:
+
+```bash
+miniube addons enable metallb
+```
+
+and then we can configure the range of addresses using:
+
+```bash
+minikube addons configure metallb
+```
+
+paying attention to the fact that the range must be within the range of the cluster.
+
+The _service.yaml_ (_loadBalancer.yaml_) file contains the configuration for exposing the application outside the cluster.
 Specifically, the _shiori_ service is exposed at the address [http://<ip_address_node_minikube>:30080](http://192.168.49.2:30080)
 retrievable through the command:
 
 ```bash
 kubectl get nodes -o wide
 ```
+
+With the loadBalancer we can access the application at _http://<service_address>:8080_.
 
 #### Using an external database
 
@@ -226,8 +242,6 @@ define the environment variables. In particular the _SHIORI_DBMS_ will be the ho
 database server and so on.
 
 ### Deploying the application in kind
-
-// TODO 
 
 The deployment process is almost the same of minikube but kind allow us to create a cluster with multiple nodes. This way we 
 can simulate the deployment of the application on multiple nodes.
@@ -291,26 +305,47 @@ the application from outside the cluster while for the QA environment we could u
 Also in this way we can specify a different database for each environment. Obviously in this case we need to
 first create the two separate databases and then specify the respective connection parameters.
 
-## Configuring RBAC
+### Configuring RBAC
 
-// TODO
+To create a user with limited permissions we can use the [RBAC](https://kubernetes.io/docs/reference/access-authn-authz/rbac/).
+This way we can avoid granting the user full access to the cluster, and we can limit the access to the resources.
 
-As an alternative to this method (who doesn't happen to forget the parameter?) we can set the default namespace
-by going to define two different contexts in this way:
-    
-```bash
-kubectl config set-context qa --namespace=quality-assurance --cluster=minikube --user=<username>
+If we need another level of security we can generate the credentials for the user using OpenSSL:
+
+```Bash
+openssl genrsa -out <user>.key 2048
 ```
 
-If you want you can also define different users by specifying the `--username` parameter as you prefer and then set a password
-using:
+And then we can generate the certificate request:
 
-```bash
-kubectl config set-credentials <role> --username=<username> --password=<password>
+```Bash
+openssl req -new -key <user>.key -out <user>.csr -subj "/CN=<user>/O=<organization>"
 ```
 
-In order to use the context at this point we need to go and define the new user (if not already defined). In
-this way we are able to restrict access to cluster resources to only those with the necessary permissions.
+We can then generate the certificate:
+
+```Bash 
+openssl x509 -req -in <user>.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out <user>.crt -days 500
+```
+
+Now we can create the secret with the certificate and the key:
+
+```Bash
+kubectl create secret generic <user>-certs --from-file=tls.crt=<user>.crt --from-file=tls.key=<user>.key --namespace=<namespace>
+```
+
+We can then create the role that we want to assign to the user and the corresponding role binding using the
+configuration files.
+At last, we can create the context for the user:
+
+```bash
+kubectl config set-credentials <role> --client-certificate<path_to_cert>/cert.crt --client-key=<path_to_key>/key.key
+
+kubectl config set-context <user>-context --namespace=<namespace> --cluster=minikube --user=<username>
+```
+
+And now we can observe that the created user can only perform the actions that we have specified in the role in the 
+specified namespace.
 
 ## Log events 
 
