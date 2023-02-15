@@ -27,8 +27,8 @@ pipeline {
     MYSQL_PASSWORD = "shiori"
     MYSQL_DATABASE = "shiori"
     MYSQL_ROOT_PASSWORD = "shiori"
-    SHIORI_TEST_PG_URL = "postgres://shiori:shiori@postgres-service-prod.production.svc.cluster.local:5432/shiori?sslmode=disable"
-    SHIORI_TEST_MYSQL_URL= "shiori:shiori@(mariadb-service-prod.production.svc.cluster.local:3306)/shiori?sslmode=disable"
+    SHIORI_TEST_PG_URL = "postgres://shiori-prod:shiori-prod@postgres-service-prod.production.svc.cluster.local:5432/shiori?sslmode=disable"
+    SHIORI_TEST_MYSQL_URL= "shiori-prod:shiori-prod@(mariadb-service-prod.production.svc.cluster.local:3306)/shiori?sslmode=disable"
   }
 
   stages {
