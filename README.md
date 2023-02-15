@@ -409,7 +409,7 @@ kubectl apply -f multi-environment/jenkins/
 this way we will have a Jenkins installation complete with all the dependencies needed to run the CI/CD and
 reachable from the browser at [http://<minikube_ip>:30000](http://<minikube_ip>:30000).
 
-Alternatively, we can [install]((https://www.jenkins.io/doc/book/installing/) the Jenkins server on the local system 
+Alternatively, we can [install](https://www.jenkins.io/doc/book/installing/) the Jenkins server on the local system 
 and reach it at [http://localhost:9090](http://localhost:9090).
 After installing Jenkins we can configure it by accessing the dashboard and following the steps of the
 [configuration wizard](https://www.jenkins.io/doc/book/installing/#setup-wizard).
